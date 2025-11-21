@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wallpaperslanthe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        midnight: '#030014',
+                        glass: 'rgba(255, 255, 255, 0.03)',
+                        'neon-blue': '#00f3ff',
+                        'neon-purple': '#bc13fe',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #030014;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Canvas styling for the background */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(124, 58, 237, 0.3); transform: scale(1); }
+            50% { box-shadow: 0 0 25px rgba(124, 58, 237, 0.6); transform: scale(1.02); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Spinning Animation for Border */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .pulse-btn {
+            animation: pulse-glow 2.5s infinite;
+        }
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        /* Advanced Mist/Glow Animation */
+        .mist-glow {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: conic-gradient(from 0deg, #00f3ff, #7c3aed, #ff0099, #00f3ff);
+            border-radius: 50%;
+            filter: blur(35px);
+            animation: spin 3s linear infinite;
+            opacity: 0.6;
+            z-index: -1;
+        }
+
+        .sharp-border {
+            position: absolute;
+            inset: -3px;
+            background: conic-gradient(from 0deg, #00f3ff, #7c3aed, #ff0099, #00f3ff);
+            border-radius: 50%;
+            animation: spin 3s linear infinite;
+            z-index: 0;
+        }
+
+        /* Modern Glass Effect */
+        .glass-effect {
+            background: rgba(13, 12, 28, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-effect:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(20, 18, 40, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* Text Gradients */
+        .text-gradient-main {
+            background: linear-gradient(to right, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .text-gradient-accent {
+            background: linear-gradient(to right, #22d3ee, #e879f9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Music Toggle Button */
+        .music-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+        .music-toggle-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.6);
+        }
+        .music-bars {
+            display: flex;
+            align-items: flex-end;
+            height: 20px;
+            gap: 3px;
+        }
+        .bar {
+            width: 4px;
+            background: #00f3ff;
+            animation: equalizer 1s infinite;
+        }
+        .paused .bar {
+            animation-play-state: paused;
+            height: 5px !important;
+        }
+        .bar:nth-child(1) { animation-delay: 0.1s; height: 15px; }
+        .bar:nth-child(2) { animation-delay: 0.3s; height: 20px; }
+        .bar:nth-child(3) { animation-delay: 0.5s; height: 12px; }
+
+        @keyframes equalizer {
+            0% { height: 5px; }
+            50% { height: 20px; }
+            100% { height: 5px; }
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-4 selection:bg-purple-500 selection:text-white">
+    
+    <!-- Background Canvas -->
+    <canvas id="canvas-bg"></canvas>
+
+    <!-- Background Audio -->
+    <!-- NOTE: Replace the src with your own direct MP3 link if needed -->
+    <audio id="bg-music" loop>
+        <source src="song.mpeg" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Music Toggle Button -->
+    <div id="music-toggle" class="music-toggle-btn paused">
+        <div class="music-bars">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-5xl w-full relative z-10">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-12 fade-in">
+            <div class="inline-block px-4 py-1.5 mb-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
+                <span class="text-xs font-semibold tracking-wider text-cyan-300 uppercase">🚀 Level Up Your Social Media</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 tracking-tight text-gradient-main">
+                Premium Promotion <br><span class="text-gradient-accent">Services</span>
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto font-light">Boost your brand visibility with our targeted, high-performance advertising solutions tailored for growth.</p>
+        </header>
+        
+        <!-- Main Content Grid -->
+        <div class="flex flex-col lg:flex-row gap-8 items-center justify-center">
+            
+            <!-- Profile Card -->
+            <div class="glass-effect rounded-3xl p-10 max-w-md w-full fade-in relative overflow-hidden group">
+                <!-- Decorative background glow inside card -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex justify-center mb-2">
+                        <div class="relative h-36 w-36 float">
+                            <!-- Mist/Fog Effect Layer -->
+                            <div class="mist-glow"></div>
+                            <!-- Sharp Border Layer -->
+                            <div class="sharp-border"></div>
+                            <!-- Static Image -->
+                            <div class="absolute inset-1 rounded-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden border border-white/20 z-10">
+                                <img src="./img.jpg" alt="Profile Logo" class="h-full w-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 text-center">
+                        <h2 class="text-2xl font-bold mb-1 text-white">Wallpapers ලන්තේ ||  🐼❤️‍🩹</h2>
+                        <div class="flex items-center justify-center gap-2 mb-6">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <p class="text-sm text-cyan-300 font-medium">Available for Paid Promotions</p>
+                        </div>
+                        
+                        <div class="flex flex-col gap-3">
+                            <a href="https://whatsapp.com/channel/0029VagK4rdICVfhW9gYWp3f" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group w-full">
+                                <i class="fab fa-whatsapp text-green-400 group-hover:scale-110 transition-transform"></i>
+                                View Channel
+                            </a>
+<a href="https://wa.me/94771853633?text=paid+promotion" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group w-full">
+                                <i class="fab fa-whatsapp text-green-400 group-hover:scale-110 transition-transform"></i>
+                                Contact For Paid Ads
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info Section -->
+            <div class="glass-effect rounded-3xl p-10 max-w-md w-full fade-in" style="animation-delay: 0.2s;">
+                <h3 class="text-2xl font-bold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Why Choose Us?</h3>
+                
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4 group">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+                            <i class="fas fa-chart-line text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-white group-hover:text-blue-300 transition-colors">Targeted Reach</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed mt-1">Connect with your ideal audience through data-driven strategies.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4 group">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
+                            <i class="fas fa-bolt text-green-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-white group-hover:text-green-300 transition-colors">Quick Results</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed mt-1">See noticeable improvements in engagement within 24 hours.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4 group">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
+                            <i class="fas fa-shield-alt text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-white group-hover:text-purple-300 transition-colors">Reliable Service</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed mt-1">Trusted by businesses for consistent, high-quality promotion.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 pt-8 border-t border-white/10">
+                    <p class="text-center text-slate-300 mb-4 text-sm font-medium">Ready to grow?</p>
+                    <button id="main-button" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg shadow-emerald-900/20 pulse-btn transition-all duration-300 flex items-center justify-center gap-3 border border-white/10" data-main-url="https://wa.me/94771853633?text=paid+promotion">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                        Contact For Paid Ads
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Section -->
+        <div class="glass-effect rounded-2xl p-8 mt-8 fade-in border-t border-white/10" style="animation-delay: 0.4s;">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-white/10">
+                <div class="py-2">
+                    <div class="text-4xl font-bold text-blue-400 mb-1">500+</div>
+                    <div class="text-slate-400 text-sm uppercase tracking-wider">Campaigns</div>
+                </div>
+                <div class="py-2">
+                    <div class="text-4xl font-bold text-green-400 mb-1">98%</div>
+                    <div class="text-slate-400 text-sm uppercase tracking-wider">Satisfaction</div>
+                </div>
+                <div class="py-2">
+                    <div class="text-4xl font-bold text-purple-400 mb-1">24/7</div>
+                    <div class="text-slate-400 text-sm uppercase tracking-wider">Support</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Testimonials -->
+        <div class="glass-effect rounded-2xl p-10 mt-8 fade-in" style="animation-delay: 0.6s;">
+            <h3 class="text-2xl font-bold mb-8 text-center text-white">Client Stories</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-black/20 border border-white/5 p-6 rounded-2xl hover:bg-black/40 transition-colors">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mr-3 shadow-lg shadow-blue-900/30">
+                            <span class="font-bold text-white text-sm">A</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Amal Perera</h4>
+                            <div class="flex text-yellow-400 text-xs mt-1">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed italic">"My business saw a 40% increase in customers. The dark theme site looks premium too!"</p>
+                </div>
+                <div class="bg-black/20 border border-white/5 p-6 rounded-2xl hover:bg-black/40 transition-colors">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center mr-3 shadow-lg shadow-green-900/30">
+                            <span class="font-bold text-white text-sm">S</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Sithara Jayasinghe</h4>
+                            <div class="flex text-yellow-400 text-xs mt-1">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed italic">"Professional service. My Instagram following grew by 2,000 in just one week!"</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-12 pb-6 text-slate-600 text-xs fade-in" style="animation-delay: 0.8s;">
+            <p>© 2025 Premium Promotion Services. Crafted with <i class="fas fa-heart text-red-500 mx-1"></i> in Sri Lanka.</p>
+        </footer>
+    </div>
+
+    <script>
+        const mainButton = document.getElementById('main-button');
+        const audio = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('music-toggle');
+        let isPlaying = false;
+
+        // Music Toggle Logic
+        musicBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                musicBtn.classList.add('paused');
+                isPlaying = false;
+            } else {
+                audio.play().then(() => {
+                    musicBtn.classList.remove('paused');
+                    isPlaying = true;
+                });
+            }
+        });
+
+        // Try Autoplay on Load
+        window.addEventListener('load', () => {
+            audio.volume = 0.4; // Set default volume
+            const playPromise = audio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started
+                    isPlaying = true;
+                    musicBtn.classList.remove('paused');
+                })
+                .catch(error => {
+                    // Autoplay prevented
+                    console.log("Autoplay prevented by browser policy. Waiting for user interaction.");
+                    // Wait for first click on body
+                    document.body.addEventListener('click', function startMusic() {
+                        audio.play();
+                        isPlaying = true;
+                        musicBtn.classList.remove('paused');
+                        document.body.removeEventListener('click', startMusic);
+                    }, { once: true });
+                });
+            }
+        });
+        
+        // Button redirects directly to WhatsApp
+        mainButton.addEventListener('click', () => {
+            window.location.href = mainButton.dataset.mainUrl;
+        });
+
+        // --- START OF AMAZING CANVAS ANIMATION SCRIPT ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        // Resize canvas to fill screen
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Mouse interaction
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        // Particle Class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; // Slow velocity
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2;
+                this.color = Math.random() > 0.5 ? '#00f3ff' : '#bc13fe'; // Neon Blue or Purple
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset to save performance on lines
+            }
+
+            update() {
+                // Movement
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > width) this.vx = -this.vx;
+                if (this.y < 0 || this.y > height) this.vy = -this.vy;
+
+                // Mouse Interaction (Parallax/Attraction)
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let forceDirectionX = dx / distance;
+                    let forceDirectionY = dy / distance;
+                    let maxDistance = 150;
+                    
+                    if (distance < maxDistance) {
+                        const force = (maxDistance - distance) / maxDistance;
+                        const directionX = forceDirectionX * force * this.density;
+                        const directionY = forceDirectionY * force * this.density;
+                        this.x -= directionX * 0.5; // Move slightly away/towards
+                        this.y -= directionY * 0.5;
+                    }
+                }
+                
+                this.draw();
+            }
+        }
+
+        function init() {
+            particles = [];
+            // Number of particles based on screen size
+            let numberOfParticles = (width * height) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Connect particles
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance/1200})`; // Fading line
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Shooting Star Logic (Randomly)
+            if (Math.random() < 0.02) {
+                drawShootingStar();
+            }
+
+            particles.forEach(particle => particle.update());
+            requestAnimationFrame(animate);
+        }
+        
+        // Simple Shooting Star effect
+        let shootingStars = [];
+        function drawShootingStar() {
+             // Draw a quick line fading out
+             const startX = Math.random() * width;
+             const startY = Math.random() * height / 2;
+             const length = Math.random() * 100 + 50;
+             const angle = Math.PI / 4; // 45 degrees
+             
+             ctx.beginPath();
+             ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+             ctx.lineWidth = 2;
+             ctx.moveTo(startX, startY);
+             ctx.lineTo(startX - length, startY + length); // Move down-left
+             ctx.stroke();
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
